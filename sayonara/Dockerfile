@@ -9,14 +9,15 @@ RUN rm -rf /var/lib/apt/lists/*
 
 ARG GROUP_ID=1000
 ARG USER_ID=1000
+ARG USRNME=sayonara
 
-RUN groupadd --system -g $GROUP_ID sayonara
-RUN useradd --system --create-home -u $USER_ID -g sayonara sayonara
-RUN usermod -aG audio sayonara
+RUN groupadd --system -g $GROUP_ID $USRNME
+RUN useradd --system --create-home -u $USER_ID -g $GROUP_ID $USRNME
+RUN usermod -aG audio $USRNME
 
 RUN echo "default-server = unix:/run/user/$USER_ID/pulse/native" >> /etc/pulse/client.conf
 
-USER sayonara
+USER $USRNME
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD []

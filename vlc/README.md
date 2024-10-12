@@ -1,2 +1,0 @@
-# Store vlc's icon for a shortcut in your system
-curl -o /usr/share/icons/hicolor/128x128/apps/vlc.png https://todo

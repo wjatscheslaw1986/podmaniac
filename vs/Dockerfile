@@ -9,7 +9,7 @@ ARG USER_ID=9898
 ARG USRNME=testpilot
 ARG DEBIAN_FRONTEND=noninteractive
 ARG GIT_EMAIL=taleskeeper@ya.ru
-ARG GIT_NAME="Viacheslav Mikhailov"
+ARG GIT_NAME='"Viacheslav Mikhailov"'
 
 RUN groupadd -g $GROUP_ID --system $USRNME && \
     useradd -m --gid $GROUP_ID --system -u $USER_ID $USRNME \

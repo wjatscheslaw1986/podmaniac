@@ -1,7 +1,7 @@
 FROM docker.io/library/debian:bookworm-slim 
 
 RUN apt update && apt upgrade -y
-RUN apt install okular -y && apt install -y kde-standard 
+RUN apt install okular -y && apt install -y kde-plasma-desktop
 RUN rm -rf /var/lib/apt/lists/*
 
 ARG GROUP_ID=9898

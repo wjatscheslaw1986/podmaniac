@@ -1,0 +1,38 @@
+FROM docker.io/library/debian:latest
+
+COPY files/sources.list /etc/apt/sources.list
+RUN chown root:root /etc/apt/sources.list
+RUN chmod 644 /etc/apt/sources.list
+
+RUN apt update && apt upgrade -y
+RUN apt install ca-certificates chromium ffmpeg pulseaudio pulseaudio-utils -y
+RUN apt install chromium libsdl2-dev -y 
+RUN rm -rf /var/lib/apt/lists/*
+
+ARG GROUP_ID=9898
+ARG USER_ID=9898
+ARG USR_NAME=chromeuser
+
+RUN groupadd -g $GROUP_ID --system $USR_NAME && \
+    useradd -m --gid $GROUP_ID --system -u $USER_ID -G audio,video $USR_NAME \
+    && mkdir -p /home/$USR_NAME/reports \
+    && mkdir -p /home/$USR_NAME/.config \
+    && mkdir -p /home/$USR_NAME/.cache \
+    && chown --recursive $USR_NAME:$USR_NAME /home/$USR_NAME
+
+RUN mkdir /tmp/run && chown -R ${USER_ID}:${GROUP_ID} /tmp/run
+
+COPY files/daemon.conf /etc/pulse/daemon.conf
+COPY files/pulse-client.conf /etc/pulse/client.conf
+RUN chown root:root /etc/pulse/daemon.conf
+RUN chown root:root /etc/pulse/client.conf
+RUN chmod 644 /etc/pulse/daemon.conf
+RUN chmod 644 /etc/pulse/client.conf
+
+COPY files/entrypoint.sh /entrypoint.sh
+RUN chmod ugo+x /entrypoint.sh
+
+USER $USR_NAME
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD []

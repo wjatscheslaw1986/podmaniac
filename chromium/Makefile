@@ -2,7 +2,6 @@ SHELL=/bin/bash
 
 DOCKER=podman
 
-IMG_NAME=chrm
 UUID=$(shell id -u)
 GUID=$(shell id -g)
 ME=$(shell whoami)
@@ -21,27 +20,9 @@ build:
 
 run:
 	@ ${DOCKER} run \
+    	--log-level info \
+		--log-driver json-file \
 		-it --rm \
-		--userns=keep-id \
-		--cpus 3.0 \
-        --memory 8192m \
-        --shm-size 2G \
-		-v /tmp/.X11-unix:/tmp/.X11-unix:ro \
-		-e DISPLAY=${DISPLAY} \
-        -v /var/lib/dbus:/var/lib/dbus:ro \
-		--device /dev/snd \
-		--device /dev/dri/card0 \
-		-e PULSE_SERVER=unix:/run/user/${UUID}/pulse/native \
-		-e XDG_RUNTIME_DIR=/run/user/${UUID} \
-		-v ${XDG_RUNTIME_DIR}/pulse:/run/user/${UUID}/pulse:ro \
-		-v /home/${ME}/.config/pulse:/home/${USRNME}/.config/pulse:rw \
-        -v /home/${ME}/.config/chromium:/home/${USRNME}/.config/chromium:rw \
-        -v /home/${ME}/.cache/chromium:/home/${USRNME}/.cache/chromium:rw \
-        -v /home/${ME}/Downloads:/home/${USRNME}/Downloads:ro \
-		chromium
-
-run-deaf:
-	@ ${DOCKER} run \
         --uidmap=0:7:1 \
         --uidmap=9898:8:1 \
         --gidmap=0:7:1 \
@@ -49,21 +30,48 @@ run-deaf:
         --gidmap=29:6:1 \
         --gidmap=44:5:1 \
         --gidmap=108:4:1 \
-        --rm -it \
-        --cpus 3.0 \
+		--cpus 3.0 \
         --memory 8192m \
-        --shm-size 2G \
-        -e DISPLAY=${DISPLAY} \
-        -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
+		--shm-size 2G \
         -v /home/${ME}/.config/Chromium/chromium:/home/${USRNME}/.config/chromium:rw \
         -v /home/${ME}/.cache/Chromium/chromium:/home/${USRNME}/.cache/chromium:rw \
+        -v /home/${ME}/reports/Chromium:/home/${USRNME}/reports:rw \
         -v /home/${ME}/Downloads:/home/${USRNME}/Downloads:rw \
+        -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
+        --device /dev/dri/card0 \
+        -v /dev/dri:/dev/dri:ro \
+		-e DISPLAY=${DISPLAY} \
+        --device /dev/snd \
+        -e PULSE_SERVER=unix:path=/run/user/9898/pulse/native \
+        -e XDG_RUNTIME_DIR=/run/user/9898 \
+        -v ${XDG_RUNTIME_DIR}/pulse:/run/user/9898/pulse:ro \
+        -v ${XDG_RUNTIME_DIR}/bus:/run/user/9898/bus:rw \
+        -e DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket \
+        -v /run/dbus:/run/dbus:rw \
+        -v /var/run/dbus:/var/run/dbus:rw \
+		chromium3
+
+run-keep-uid:
+	@ ${DOCKER} run \
+        --log-level info \
+		--log-driver json-file \
+		-it --rm \
+		--userns=keep-id \
+		--cpus 4.0 \
+        --memory 8192m \
+        --shm-size 2G \
+        -v /home/${ME}/.config/chromium:/home/${USRNME}/.config/chromium:rw \
+        -v /home/${ME}/.cache/chromium:/home/${USRNME}/.cache/chromium:rw \
+        -v /home/${ME}/Downloads:/home/${USRNME}/Downloads:rw \
+        -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
+		-e DISPLAY=${DISPLAY} \
         --device /dev/snd \
         --device /dev/dri/card0 \
-        -v /dev/snd:/dev/snd:ro \
-        -e PULSE_SERVER=unix:/tmp/run/pulse/native \
-        -v ${XDG_RUNTIME_DIR}/pulse:/tmp/run/pulse:ro \
+        -e XDG_RUNTIME_DIR=/tmp \
+        -e PULSE_SERVER=unix:/tmp/pulse/native \
+        -v ${XDG_RUNTIME_DIR}/pulse:/tmp/pulse:ro \
         -v /home/${ME}/.config/pulse:/home/${USRNME}/.config/pulse:ro \
-        -v /etc/machine-id:/etc/machine-id:ro \
-		-v /var/lib/dbus:/var/lib/dbus:ro \
-	    chrm
+        -e DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket \
+        -v /run/dbus:/run/dbus:rw \
+        -v /var/run/dbus:/var/run/dbus:rw \
+		chromium

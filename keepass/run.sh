@@ -5,10 +5,7 @@ podman run \
     --uidmap=9898:120:1 \
     --gidmap=0:119:1 \
     --gidmap=9898:120:1 \
-    --rm \
-    -it \
-    --cgroup-manager systemd \
-    --shm-size 100m \
+    --rm -it \
     --net=none \
     -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
     -v /home/$(whoami)/Documents/keepass:/home/testpilot/Documents:rw \

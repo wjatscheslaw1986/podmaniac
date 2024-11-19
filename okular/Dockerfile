@@ -1,8 +1,8 @@
 FROM docker.io/library/debian:bookworm-slim 
 
-RUN apt update && apt upgrade -y
-RUN apt install okular -y && apt install -y kde-plasma-desktop
-RUN rm -rf /var/lib/apt/lists/*
+RUN apt update && apt upgrade -y && \
+    apt install -y okular kde-plasma-desktop && \
+    rm -rf /var/lib/apt/lists/*
 
 ARG GROUP_ID=9898
 ARG USER_ID=9898
@@ -14,10 +14,6 @@ RUN groupadd -g $GROUP_ID --system $USRNME && \
     && mkdir -p /home/$USRNME/.cache \
     && chown --recursive $USER_ID:$GROUP_ID /home/$USRNME
 
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod ugo+x /entrypoint.sh
-
 USER $USRNME
 
-ENTRYPOINT ["/entrypoint.sh"]
-CMD []
+CMD ["okular"]

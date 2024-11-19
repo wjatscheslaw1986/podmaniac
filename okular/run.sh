@@ -8,7 +8,7 @@ podman run \
     --rm -it \
     --network=none \
     -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
-    -v /home/$(whoami)/Documents/okulaar:/home/reader/Documents:rw \
+    -v /home/$(whoami)/Documents/okulaar:/home/reader/Documents:ro \
     -v /home/$(whoami)/.config/okular:/home/reader/.config/:rw \
     -e DISPLAY=$DISPLAY \
     -v /dev/dri:/dev/dri:ro \

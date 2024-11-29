@@ -1,0 +1,7 @@
+#!/bin/bash
+xhost +si:localuser:pod_chrom
+xhost +si:localuser:pod_kee
+xhost +si:localuser:pod_vs
+xhost +si:localuser:pod_gwen
+xhost +si:localuser:pod_okular
+xhost +si:localuser:pod_fzilla

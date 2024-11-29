@@ -32,10 +32,11 @@ run:
         --gidmap=108:4:1 \
 		--cpus 4.0 \
         --memory 8192m \
-		--shm-size 1G \
-        -v /home/${ME}/.config/Chromium/chromium:/home/${USRNME}/.config/chromium:rw \
-        -v /home/${ME}/.cache/Chromium/chromium:/home/${USRNME}/.cache/chromium:rw \
-        -v /home/${ME}/reports/Chromium:/home/${USRNME}/reports:rw \
+		--shm-size 2G \
+        -v /opt/chromium/config:/home/${USRNME}/.config:rw \
+        -v /opt/chromium/cache:/home/${USRNME}/.cache:rw \
+        -v /opt/chromium/reports:/home/${USRNME}/reports:rw \
+        -v /opt/chromium/local:/home/${USRNME}/.local:rw \
         -v /home/${ME}/Downloads:/home/${USRNME}/Downloads:rw \
         --device /dev/dri \
         --device /dev/snd \
@@ -46,34 +47,8 @@ run:
         -v /run/user/${UUID}/pulse:/tmp/xdg/pulse:ro \
         -v /run/user/${UUID}/bus:/tmp/xdg/bus:rw \
         -e DBUS_SESSION_BUS_ADDRESS=unix:path=/tmp/xdg/bus \
-		chromium2
-
-run-deaf:
-	@ ${DOCKER} run \
-    	--log-level info \
-		--log-driver json-file \
-		-it --rm \
-        --uidmap=0:7:1 \
-        --uidmap=9898:8:1 \
-        --gidmap=0:7:1 \
-        --gidmap=9898:8:1 \
-        --gidmap=29:6:1 \
-        --gidmap=44:5:1 \
-        --gidmap=108:4:1 \
-		--cpus 2.0 \
-        --memory 8192m \
-		--shm-size 1G \
-        -v /home/${ME}/.config/Chromium/chromium:/home/${USRNME}/.config/chromium:rw \
-        -v /home/${ME}/.cache/Chromium/chromium:/home/${USRNME}/.cache/chromium:rw \
-        -v /home/${ME}/reports/Chromium:/home/${USRNME}/reports:rw \
-        -v /home/${ME}/Downloads:/home/${USRNME}/Downloads:rw \
-        -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
-        --device /dev/dri/card0 \
-		-e DISPLAY=${DISPLAY} \
-        -e XDG_RUNTIME_DIR=/tmp \
-        -v ${XDG_RUNTIME_DIR}/bus:/tmp/bus:rw \
-        -e DBUS_SESSION_BUS_ADDRESS=unix:path=/tmp/bus \
-		chromium2
+        -v /run/dbus/system_bus_socket:/run/dbus/system_bus_socket:rw \
+		chromium
 
 run-keep-uid:
 	@ ${DOCKER} run \

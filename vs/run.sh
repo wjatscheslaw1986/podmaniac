@@ -10,10 +10,10 @@ podman run \
     --rm -it \
     -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
     -v /home/$(whoami)/Code:/home/testpilot/Code:rw \
-    -v /home/$(whoami)/.cache/Code:/home/testpilot/.cache:rw \
-    -v /home/$(whoami)/.local/share/Code:/home/testpilot/.local/share:rw \
-    -v /home/$(whoami)/.config/Code:/home/testpilot/.config:rw \
-    -v /home/$(whoami)/.vscode:/home/testpilot/.vscode:rw \
+    -v /opt/vs/cache:/home/testpilot/.cache:rw \
+    -v /opt/vs/local:/home/testpilot/.local:rw \
+    -v /opt/vs/config:/home/testpilot/.config:rw \
+    -v /opt/vs/vscode:/home/testpilot/.vscode:rw \
     -e DISPLAY=$DISPLAY \
     --device=/dev/dri/card0 \
     $CONTAINER

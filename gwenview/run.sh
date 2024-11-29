@@ -9,9 +9,12 @@ podman run \
     -it \
     --net=none \
     -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
-    -v /home/$(whoami)/Pictures:/home/gwen/Pictures:rw \
+    -v /opt/gwenview/config:/home/gwen/.config:rw \
+    -v /opt/gwenview/cache:/home/gwen/.cache:rw \
+    -v /opt/gwenview/local:/home/gwen/.local:rw \
+    -v /home/$(whoami)/Pictures:/home/gwen/Pictures:ro \
     -v /home/$(whoami)/Downloads:/home/gwen/Downloads:ro \
-    -v /home/$(whoami)/.config/gwenview:/home/testpilot/.config:rw \
     -e DISPLAY=$DISPLAY \
     -v /dev/dri:/dev/dri:ro \
+    -e XDG_RUNTIME_DIR=/tmp/runtime \
     $CONTAINER

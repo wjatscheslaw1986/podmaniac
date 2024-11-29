@@ -8,8 +8,6 @@ podman run \
     --rm -it \
     --net=none \
     -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
-    -v /home/$(whoami)/Documents/keepass:/home/testpilot/Documents:rw \
-    -v /home/$(whoami)/.config/keepass:/home/testpilot/.config/:rw \
-    -v /home/$(whoami)/.cache/keepass:/home/testpilot/.cache/:rw \
+    -v /opt/keepass:/home/testpilot/:rw \
     -e DISPLAY=$DISPLAY \
     $CONTAINER

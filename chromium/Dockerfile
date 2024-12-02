@@ -19,9 +19,12 @@ RUN groupadd -g $GROUP_ID --system ${USR_NAME} && \
     && mkdir -p /home/${USR_NAME}/reports \
     && mkdir -p /home/${USR_NAME}/.config \
     && mkdir -p /home/${USR_NAME}/.cache \
+    && mkdir -p /home/${USR_NAME}/.local/share \
     && chown --recursive ${USR_NAME}:${USR_NAME} /home/${USR_NAME}
+
+RUN echo "default-server = unix:/run/user/$USER_ID/pulse/native" >> /etc/pulse/client.conf
 
 USER ${USR_NAME}
 RUN mkdir -p /tmp/xdg
 
-CMD ["chromium"]
+CMD "chromium"

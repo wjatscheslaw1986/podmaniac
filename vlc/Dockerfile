@@ -1,9 +1,20 @@
 FROM --platform=linux/amd64 docker.io/library/debian:latest 
 
-ENV DEBIAN_FRONTEND=noninteractive
+COPY files/sources.list /sources.list
 
-RUN apt update && apt upgrade -y && apt install pulseaudio -y && apt install vlc -y
-RUN rm -rf /var/lib/apt/lists/*
+RUN cat /sources.list > /etc/apt/sources.list 
+RUN rm /etc/apt/sources.list.d/* && rm /sources.list
+
+RUN apt update && apt upgrade -y \
+    && apt install apt-transport-https -y \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN apt update && apt upgrade -y \
+    && apt --fix-broken install \
+    && apt install alsa-oss alsa-utils pulseaudio ca-certificates vlc -y \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
 
 ARG GROUP_ID=1000
 ARG USER_ID=1000
@@ -25,5 +36,4 @@ RUN echo "default-server = unix:/run/user/$USER_ID/pulse/native" >> /etc/pulse/c
 
 USER $USRNME
 
-ENTRYPOINT ["/entrypoint.sh"]
-CMD []
+CMD "vlc"

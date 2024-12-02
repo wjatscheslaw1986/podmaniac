@@ -12,6 +12,7 @@ podman run \
     -v /opt/gwenview/config:/home/gwen/.config:rw \
     -v /opt/gwenview/cache:/home/gwen/.cache:rw \
     -v /opt/gwenview/local:/home/gwen/.local:rw \
+    -v /opt/gwenview/Pictures:/home/gwen/PICS:rw \
     -v /home/$(whoami)/Pictures:/home/gwen/Pictures:ro \
     -v /home/$(whoami)/Downloads:/home/gwen/Downloads:ro \
     -e DISPLAY=$DISPLAY \

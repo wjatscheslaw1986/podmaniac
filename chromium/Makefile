@@ -5,7 +5,9 @@ DOCKER=podman
 UUID=$(shell id -u)
 GUID=$(shell id -g)
 ME=$(shell whoami)
+MY_UID=$(shell id -u)
 USRNME=chromeuser
+IMG_NAME=chromium
 
 list:
 	@ $(MAKE) -pRrq -f Makefile : 2>/dev/null \
@@ -17,6 +19,9 @@ list:
 
 build:
 	@ ${DOCKER} build -t ${IMG_NAME} .
+
+build-keep-uid:
+	@ ${DOCKER} build -t ${IMG_NAME}${MY_UID} --build-arg USER_ID=${MY_UID} --build-arg GROUP_ID=${MY_UID} --build-arg USR_NAME=${ME} .
 
 run:
 	@ ${DOCKER} run \
@@ -33,22 +38,19 @@ run:
 		--cpus 4.0 \
         --memory 8192m \
 		--shm-size 2G \
-        -v /opt/chromium/config:/home/${USRNME}/.config:rw \
-        -v /opt/chromium/cache:/home/${USRNME}/.cache:rw \
-        -v /opt/chromium/reports:/home/${USRNME}/reports:rw \
-        -v /opt/chromium/local:/home/${USRNME}/.local:rw \
+        -v /opt/${IMG_NAME}/config:/home/${USRNME}/.config:rw \
+        -v /opt/${IMG_NAME}/cache:/home/${USRNME}/.cache:rw \
+        -v /opt/${IMG_NAME}/reports:/home/${USRNME}/reports:rw \
+        -v /opt/${IMG_NAME}/local:/home/${USRNME}/.local:rw \
         -v /home/${ME}/Downloads:/home/${USRNME}/Downloads:rw \
+        -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
+        -v /run/user/${UUID}/pulse:/tmp/xdg/pulse:ro \
         --device /dev/dri \
         --device /dev/snd \
 		-e DISPLAY=${DISPLAY} \
         -e PULSE_SERVER=unix:path=/tmp/xdg/pulse/native \
         -e XDG_RUNTIME_DIR=/tmp/xdg \
-        -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
-        -v /run/user/${UUID}/pulse:/tmp/xdg/pulse:ro \
-        -v /run/user/${UUID}/bus:/tmp/xdg/bus:rw \
-        -e DBUS_SESSION_BUS_ADDRESS=unix:path=/tmp/xdg/bus \
-        -v /run/dbus/system_bus_socket:/run/dbus/system_bus_socket:rw \
-		chromium
+		${IMG_NAME}
 
 run-keep-uid:
 	@ ${DOCKER} run \
@@ -59,17 +61,19 @@ run-keep-uid:
 		--cpus 4.0 \
         --memory 8192m \
         --shm-size 2G \
-        -v /home/${ME}/.config/chromium:/home/${USRNME}/.config/chromium:rw \
-        -v /home/${ME}/.cache/chromium:/home/${USRNME}/.cache/chromium:rw \
-        -v /home/${ME}/Downloads:/home/${USRNME}/Downloads:rw \
+        -v /opt/${IMG_NAME}${MY_UID}/config:/home/${ME}/.config:rw \
+        -v /opt/${IMG_NAME}${MY_UID}/cache:/home/${ME}/.cache:rw \
+        -v /opt/${IMG_NAME}${MY_UID}/reports:/home/${ME}/reports:rw \
+        -v /opt/${IMG_NAME}${MY_UID}/local:/home/${ME}/.local:rw \
+        -v /home/${ME}/Downloads:/home/${ME}/Downloads:rw \
         -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
 		-e DISPLAY=${DISPLAY} \
         --device /dev/snd \
-        --device /dev/dri/card0 \
+        --device /dev/dri \
+        --device /dev/video0 \
         -e XDG_RUNTIME_DIR=/tmp \
         -e PULSE_SERVER=unix:/tmp/pulse/native \
         -v ${XDG_RUNTIME_DIR}/pulse:/tmp/pulse:ro \
-        -v /home/${ME}/.config/pulse:/home/${USRNME}/.config/pulse:ro \
         -e DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket \
         -v /run/dbus:/run/dbus:rw \
-		chromium
+        ${IMG_NAME}${MY_UID}

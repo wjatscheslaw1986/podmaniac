@@ -1,4 +1,5 @@
 #!/bin/bash
+mkdir -p icons
 # Store gwenview's icon for a shortcut in your system
 curl -o icons/gwenview.png https://raw.githubusercontent.com/KDE/gwenview/refs/heads/master/logo.png#!/bin/bash
 # Store okular's icon for a shortcut in your system

@@ -30,16 +30,14 @@ run:
 		--log-driver json-file \
 		-it --rm \
 		-v /tmp/.X11-unix:/tmp/.X11-unix:ro \
-		-e DISPLAY=:0.0 \
-                -v /var/lib/dbus:/var/lib/dbus:ro \
+		-e DISPLAY=${DISPLAY} \
+        -v /var/lib/dbus:/var/lib/dbus:ro \
 		--device /dev/snd \
-                -v /dev/dri:/dev/dri:ro \
+		--device /dev/dri \
 		-e PULSE_SERVER=unix:/run/user/${UUID}/pulse/native \
 		-e XDG_RUNTIME_DIR=/run/user/${UUID} \
 		-v ${XDG_RUNTIME_DIR}/pulse:/run/user/${UUID}/pulse:ro \
-		-v ${XDG_RUNTIME_DIR}/pulse/native:/run/user/${UUID}/pulse/native:ro \
-		-v /home/${ME}/.config/pulse:/home/${USRNME}/.config/pulse:rw \
-                -v /home/${ME}/Music:/home/${USRNME}/Music:ro \
+        -v /home/${ME}/Music:/home/${USRNME}/Music:ro \
 		-v /home/${ME}/Videos:/home/${USRNME}/Videos:ro \
-                -v /home/${ME}/Downloads:/home/${USRNME}/Downloads:ro \
+        -v /home/${ME}/Downloads:/home/${USRNME}/Downloads:ro \
 		${CH_IMAGE}

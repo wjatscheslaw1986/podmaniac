@@ -2,9 +2,8 @@ SHELL=/bin/bash
 
 DOCKER=podman
 
-CH_IMAGE=vlc
+IMG_NAME=vlc
 UUID=$(shell id -u)
-GUID=$(shell id -g)
 ME=$(shell whoami)
 USRNME=mgibson
 
@@ -19,25 +18,29 @@ list:
 		| sort
 
 build:
-	@ ${DOCKER} build -t ${CH_IMAGE} .
+	@ ${DOCKER} build -t ${IMG_NAME} .
 
 run:
 	@ ${DOCKER} run \
 		--net=none \
-		--cgroup-manager systemd \
 		${WITH_USERNS} \
 		--log-level info \
 		--log-driver json-file \
 		-it --rm \
-		-v /tmp/.X11-unix:/tmp/.X11-unix:ro \
+		--cpus 2.0 \
+                --memory 8192m \
+	        -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
 		-e DISPLAY=${DISPLAY} \
-        -v /var/lib/dbus:/var/lib/dbus:ro \
 		--device /dev/snd \
 		--device /dev/dri \
-		-e PULSE_SERVER=unix:/run/user/${UUID}/pulse/native \
-		-e XDG_RUNTIME_DIR=/run/user/${UUID} \
-		-v ${XDG_RUNTIME_DIR}/pulse:/run/user/${UUID}/pulse:ro \
-        -v /home/${ME}/Music:/home/${USRNME}/Music:ro \
-		-v /home/${ME}/Videos:/home/${USRNME}/Videos:ro \
-        -v /home/${ME}/Downloads:/home/${USRNME}/Downloads:ro \
-		${CH_IMAGE}
+                -v /home/${ME}/Music:/opt/Music:ro \
+		-v /home/${ME}/Videos:/opt/Videos:ro \
+                -v /home/${ME}/Downloads:/opt/Downloads:ro \
+		-v /var/lib/dbus:/var/lib/dbus:ro \
+		-v /opt/vlc:/home/${USRNME}:rw \
+		-e XDG_RUNTIME_DIR=/tmp \
+                -e PULSE_SERVER=unix:/tmp/pulse/native \
+                -v ${XDG_RUNTIME_DIR}/pulse:/tmp/pulse:ro \
+                -e DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket \
+                -v /run/dbus:/run/dbus:rw \
+		${IMG_NAME}

@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  keepass2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - CONTAINER=mykeepass
+    environment:
+      - GROUP_ID=9898
+      - USER_ID=9898
+      - USRNME=testpilot
+      - DISPLAY=${DISPLAY}
+    user: "${USER_ID}:${GROUP_ID}"
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:ro
+      - /opt/keepass:/home/${USRNME}/:rw
+    network_mode: "none"
+    uidmap:
+      - 0:119:1
+      - 9898:120:1
+    gidmap:
+      - 0:119:1
+      - 9898:120:1
+    container_name: ${CONTAINER}

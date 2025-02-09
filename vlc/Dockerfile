@@ -1,12 +1,11 @@
 FROM --platform=linux/amd64 docker.io/library/debian:latest 
 
 COPY files/sources.list /sources.list
-
 RUN cat /sources.list > /etc/apt/sources.list 
 RUN rm /etc/apt/sources.list.d/* && rm /sources.list
 
 RUN apt update && apt upgrade -y \
-    && apt install apt-transport-https -y \
+    && apt install apt-transport-https ffmpeg libavcodec-extra bluetooth bluez -y \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -21,7 +20,7 @@ ARG USER_ID=1000
 ARG USRNME=mgibson
 
 RUN groupadd --system -g $GROUP_ID $USRNME
-RUN useradd --system --create-home -u $USER_ID -g $GROUP_ID -G audio,video $USRNME
+RUN useradd --system --create-home -u $USER_ID -g $GROUP_ID -G audio,video,bluetooth $USRNME
 RUN mkdir -p /home/$USRNME/.config \
     && mkdir -p /home/$USRNME/.cache \
     && mkdir -p /home/$USRNME/.local/share \
@@ -29,11 +28,10 @@ RUN mkdir -p /home/$USRNME/.config \
 
 COPY files/daemon.conf /etc/pulse/daemon.conf
 COPY files/pulse-client.conf /etc/pulse/client.conf
-COPY files/entrypoint.sh /entrypoint.sh
-RUN chmod ugo+x /entrypoint.sh
 
 RUN echo "default-server = unix:/run/user/$USER_ID/pulse/native" >> /etc/pulse/client.conf
 
 USER $USRNME
+RUN mkdir -p /tmp/xdg
 
 CMD "vlc"

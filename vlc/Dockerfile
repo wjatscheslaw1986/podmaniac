@@ -5,13 +5,11 @@ RUN cat /sources.list > /etc/apt/sources.list
 RUN rm /etc/apt/sources.list.d/* && rm /sources.list
 
 RUN apt update && apt upgrade -y \
-    && apt install apt-transport-https ffmpeg libavcodec-extra bluetooth bluez -y \
-    && apt clean \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN apt update && apt upgrade -y \
-    && apt --fix-broken install \
-    && apt install alsa-oss alsa-utils pulseaudio ca-certificates vlc -y \
+    && apt install apt-transport-https \
+    gstreamer1.0-libav gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly \
+    libx265-199 x264 libx264-164 \
+    ffmpeg libdav1d6 libavcodec-extra libmpeg2-4 libtheora0 libxvidcore4 \
+    bluetooth bluez alsa-oss alsa-utils pulseaudio ca-certificates vlc parole -y \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -34,4 +32,4 @@ RUN echo "default-server = unix:/run/user/$USER_ID/pulse/native" >> /etc/pulse/c
 USER $USRNME
 RUN mkdir -p /tmp/xdg
 
-CMD "vlc"
+CMD "parole"

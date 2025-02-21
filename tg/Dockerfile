@@ -1,23 +1,16 @@
-FROM --platform=linux/amd64 docker.io/library/debian:latest 
+FROM --platform=linux/amd64 docker.io/library/debian:bookworm-slim
 
-COPY files/sources.list /etc/apt/sources.list
-RUN rm /etc/apt/sources.list.d/*
+COPY files/sources.list /sources.list
+RUN cat /sources.list > /etc/apt/sources.list 
+RUN rm /etc/apt/sources.list.d/* && rm /sources.list
 
-RUN apt update && apt upgrade -y \
-    && apt --fix-broken install -y \
-    && apt install alsa-oss alsa-utils pulseaudio ca-certificates ffmpeg -y \
-    && apt clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt update && apt upgrade -y && apt --fix-broken install -y && apt install apt-transport-https -y
 
-RUN apt update && apt upgrade -y \
-    && apt install -y xz-utils \
-    && apt clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt install -y xfce4 xdg-utils
 
-RUN apt update && apt upgrade -y \
-    && apt install -y xfce4 xdg-utils \
-    && apt clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt install xz-utils alsa-oss alsa-utils pulseaudio ca-certificates ffmpeg -y
+
+RUN apt clean && rm -rf /var/lib/apt/lists/*
 
 ARG GROUP_ID=9898
 ARG USER_ID=9898

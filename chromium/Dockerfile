@@ -1,9 +1,14 @@
 FROM --platform=linux/amd64 docker.io/library/debian:latest 
 
-RUN apt update && apt upgrade -y \
-    && apt install alsa-oss alsa-utils pulseaudio ca-certificates ffmpeg bluetooth bluez chromium -y \
-    && apt clean \
-    && rm -rf /var/lib/apt/lists/*
+COPY files/sources.list /sources.list
+RUN cat /sources.list > /etc/apt/sources.list 
+RUN rm /etc/apt/sources.list.d/* && rm /sources.list
+
+RUN apt update && apt upgrade -y && apt --fix-broken install -y && apt install apt-transport-https -y
+
+RUN apt install -y xfce4 xdg-utils
+RUN apt install alsa-oss alsa-utils pulseaudio ca-certificates ffmpeg bluetooth bluez chromium -y 
+RUN apt clean && rm -rf /var/lib/apt/lists/*
 
 ARG GROUP_ID=9898
 ARG USER_ID=9898

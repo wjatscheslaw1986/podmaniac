@@ -2,3 +2,6 @@
 *.svg
 *.deb
 .vscode/settings.json
+*.tar
+*.tar.xz
+*.tar.gz

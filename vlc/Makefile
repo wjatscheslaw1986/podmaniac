@@ -20,6 +20,10 @@ list:
 build:
 	@ ${DOCKER} build -t ${IMG_NAME} .
 
+build-parole:
+	@ ${DOCKER} build -t parole .
+
+
 run:
 	@ ${DOCKER} run \
 		--net=none \
@@ -36,6 +40,7 @@ run:
                 -v /home/${ME}/Music:/opt/Music:ro \
 		-v /home/${ME}/Videos:/opt/Videos:ro \
                 -v /home/${ME}/Downloads:/opt/Downloads:ro \
+		-v /opt/yt:/home/${USRNME}/YouTube:ro \
 		-v /var/lib/dbus:/var/lib/dbus:ro \
 		-v /opt/vlc:/home/${USRNME}:rw \
 		-e XDG_RUNTIME_DIR=/tmp \
@@ -43,4 +48,30 @@ run:
                 -v ${XDG_RUNTIME_DIR}/pulse:/tmp/pulse:ro \
                 -e DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket \
                 -v /run/dbus:/run/dbus:rw \
-		${IMG_NAME}
+		vlc
+
+run-parole:
+	@ ${DOCKER} run \
+		--net=none \
+		${WITH_USERNS} \
+		--log-level info \
+		--log-driver json-file \
+		-it --rm \
+		--cpus 2.0 \
+                --memory 8192m \
+	        -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
+		-e DISPLAY=${DISPLAY} \
+		--device /dev/snd \
+		--device /dev/dri \
+                -v /home/${ME}/Music:/opt/Music:ro \
+		-v /home/${ME}/Videos:/opt/Videos:ro \
+                -v /home/${ME}/Downloads:/opt/Downloads:ro \
+		-v /opt/yt:/home/${USRNME}/YouTube:ro \
+		-v /var/lib/dbus:/var/lib/dbus:ro \
+		-v /opt/parole:/home/${USRNME}:rw \
+		-e XDG_RUNTIME_DIR=/tmp \
+                -e PULSE_SERVER=unix:/tmp/pulse/native \
+                -v ${XDG_RUNTIME_DIR}/pulse:/tmp/pulse:ro \
+                -e DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket \
+                -v /run/dbus:/run/dbus:rw \
+		parole

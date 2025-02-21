@@ -1,5 +1,6 @@
 #!/bin/bash
-CONTAINER=$1
+IMAGE=$1
+CONTAINER=$2
 podman run \
     --log-level=error \
     --log-driver=json-file \
@@ -21,4 +22,5 @@ podman run \
     --device /dev/snd \
     --device /dev/video0 \
     -v /var/run/dbus:/var/run/dbus:ro \
-    $CONTAINER
+    --name $CONTAINER \
+    $IMAGE

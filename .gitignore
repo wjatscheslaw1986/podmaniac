@@ -1,7 +1,9 @@
 *.png
 *.svg
 *.deb
+.idea
 .vscode/settings.json
 *.tar
 *.tar.xz
 *.tar.gz
+yt/cookies.txt

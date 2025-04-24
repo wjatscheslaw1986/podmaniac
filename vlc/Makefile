@@ -31,9 +31,9 @@ run:
 		--log-level info \
 		--log-driver json-file \
 		-it --rm \
-		--cpus 1.0 \
-        --memory 8192m \
-	    -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
+		--cpus 3.0 \
+                --memory 8192m \
+                -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
 		-e DISPLAY=${DISPLAY} \
 		--device /dev/snd \
 		--device /dev/dri \

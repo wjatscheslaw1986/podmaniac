@@ -32,4 +32,4 @@ RUN echo "default-server = unix:/run/user/$USER_ID/pulse/native" >> /etc/pulse/c
 USER $USRNME
 RUN mkdir -p /tmp/xdg
 
-CMD "parole"
+CMD "vlc"

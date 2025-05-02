@@ -2,7 +2,7 @@ SHELL=/bin/bash
 
 DOCKER=podman
 
-CH_IMAGE=sayonara
+IMG_NAME=sayonara
 UUID=$(shell id -u)
 GUID=$(shell id -g)
 ME=$(shell whoami)
@@ -18,7 +18,11 @@ list:
 		| sort
 
 build:
-	@ ${DOCKER} build -t ${CH_IMAGE} .
+	@ ${DOCKER} build -f Dockerfile_X11 -t ${IMG_NAME} .
+
+build-wayland:
+	@ ${DOCKER} build -f Dockerfile_Wayland -t ${IMG_NAME} .
+
 
 run:
 	@ ${DOCKER} run \
@@ -29,12 +33,48 @@ run:
 		-it --rm \
 		-v /tmp/.X11-unix:/tmp/.X11-unix:ro \
 		-e DISPLAY=${DISPLAY} \
-        -v /var/lib/dbus:/var/lib/dbus:ro \
+       		-v /var/lib/dbus:/var/lib/dbus:ro \
 		--device /dev/snd \
 		-e PULSE_SERVER=unix:/run/user/${UUID}/pulse/native \
 		-e XDG_RUNTIME_DIR=/run/user/${UUID} \
 		-v ${XDG_RUNTIME_DIR}/pulse:/run/user/${UUID}/pulse:ro \
 		-v /opt/sayonara:/home/sayonara/.config/sayonara:rw \
-        -v /home/${ME}/Music:/home/sayonara/Music:ro \
+        	-v /home/${ME}/Music:/home/sayonara/Music:ro \
 		-v /media/${ME}/android/Music:/home/sayonara/SDCard:ro \
-		${CH_IMAGE}
+		${IMG_NAME}
+
+run-wayland:
+	@ x11docker \
+		--backend=${DOCKER} \
+		--network=none \
+		--home \
+		--group-add audio \
+		--group-add bluetooth \
+		--pulseaudio=socket \
+		--user=RETAIN \
+		-- \
+		-v /var/lib/dbus:/var/lib/dbus:rw \
+		--device /dev/snd \
+		-e PULSE_SERVER=unix:/run/user/9824/pulse/native \
+		-e XDG_RUNTIME_DIR=/run/user/9824/ \
+		-v ${XDG_RUNTIME_DIR}/pulse:/run/user/9824/pulse:rw \
+            -v /home/${ME}/Music:/home/sayonara/Music:ro \
+            -v /media/${ME}/android/Music:/home/sayonara/SDCard:ro \
+			-it --rm \
+		-- \
+		${IMG_NAME} sayonara
+
+run-wayland-bluetooth:
+	@ x11docker \
+		--backend=${DOCKER} \
+		--network=none \
+		--group-add audio \
+		--group-add bluetooth \
+		--pulseaudio=socket \
+		--dbus=system \
+		--share=/home/${ME}/Music \
+        -- \
+            -v /media/${ME}/android/Music:/home/sayonara/SDCard:ro \
+			-it --rm
+		-- \
+		${IMG_NAME} sayonara

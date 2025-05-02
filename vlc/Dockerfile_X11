@@ -7,7 +7,7 @@ RUN rm /etc/apt/sources.list.d/* && rm /sources.list
 RUN apt update && apt upgrade -y \
     && apt install apt-transport-https \
     gstreamer1.0-libav gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly \
-    libx265-199 x264 libx264-164 \
+    libx265-199 x264 libx264-164 dbus \
     ffmpeg libdav1d6 libavcodec-extra libmpeg2-4 libtheora0 libxvidcore4 \
     bluetooth bluez alsa-oss alsa-utils pulseaudio ca-certificates vlc parole -y \
     && apt clean \

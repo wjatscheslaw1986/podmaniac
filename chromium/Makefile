@@ -12,6 +12,10 @@ build:
 	@ echo "Собираем образ Chromium для запуска в ином пространстве имён" && \
         ${DOCKER} build -t ${IMG_NAME} .
 
+build-wayland:
+	@ echo "Собираем образ Chromium для запуска в ином пространстве имён" && \
+        ${DOCKER} build -f Dockerfile_Wayland -t ${IMG_NAME} .
+
 build-keep-uid:
 	@ echo "Собираем образ Chromium для запуска от имени пользователя ${ME}" && \
         ${DOCKER} build -t ${IMG_NAME}${MY_UID} --build-arg USER_ID=${MY_UID} --build-arg GROUP_ID=${MY_UID} --build-arg USR_NAME=${ME} .

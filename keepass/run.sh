@@ -1,5 +1,5 @@
 #!/bin/bash
-CONTAINER=$1
+IMAGE=$1
 podman run \
     --uidmap=0:119:1 \
     --uidmap=9898:120:1 \
@@ -7,7 +7,8 @@ podman run \
     --gidmap=9898:120:1 \
     --rm -it \
     --net=none \
-    -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
     -v /opt/keepass:/home/testpilot/:rw \
     -e DISPLAY=$DISPLAY \
-    $CONTAINER
+    -e WAYLAND_DISPLAY=$WAYLAND_DISPLAY \
+    -v /run/user/1000:/run/user/9898:rw \
+    $IMAGE

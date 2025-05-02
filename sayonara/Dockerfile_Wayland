@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 docker.io/library/debian:latest 
+FROM --platform=linux/amd64 docker.io/library/debian:bookworm-slim
 
 COPY files/sources.list /sources.list
 
@@ -6,28 +6,23 @@ RUN cat /sources.list > /etc/apt/sources.list
 RUN rm /etc/apt/sources.list.d/* && rm /sources.list
 
 RUN apt update && apt upgrade -y \
-    && apt install apt-transport-https -y \
-    && apt clean \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN apt update && apt upgrade -y \
     && apt --fix-broken install \
-    && apt install alsa-oss alsa-utils pulseaudio ca-certificates sayonara -y \
+    && apt install alsa-oss alsa-utils ca-certificates bluetooth bluez pulseaudio libpulse0 pulseaudio-utils sayonara -y \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
 
-ARG GROUP_ID=1000
-ARG USER_ID=1000
+ARG GROUP_ID=9824
+ARG USER_ID=9824
 ARG USRNME=sayonara
 
 RUN groupadd --system -g $GROUP_ID $USRNME
 RUN useradd --system --create-home -u $USER_ID -g $GROUP_ID $USRNME
-RUN usermod -aG audio $USRNME
+RUN usermod -aG audio,bluetooth $USRNME
 
 COPY files/daemon.conf /etc/pulse/daemon.conf
 COPY files/pulse-client.conf /etc/pulse/client.conf
-RUN echo "default-server = unix:/run/user/$USER_ID/pulse/native" >> /etc/pulse/client.conf
-
+RUN mkdir -p /run/user/${USER_ID}/ && chown -R ${USER_ID}:${USER_ID} /run/user/${USER_ID}/ && chmod 700 /run/user/${USER_ID}
 USER $USRNME
+RUN echo $(pulseaudio -k ) && echo $(pulseaudio --start | true)
 
-CMD "sayonara"
+#CMD "sayonara"

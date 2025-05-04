@@ -1,6 +1,6 @@
 FROM docker.io/library/debian:bookworm-slim 
 
-COPY ../sources.list /sources.list
+COPY sources.list /sources.list
 RUN cat /sources.list > /etc/apt/sources.list 
 RUN rm /etc/apt/sources.list.d/* && rm /sources.list
 

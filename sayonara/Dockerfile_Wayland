@@ -7,7 +7,7 @@ RUN rm /etc/apt/sources.list.d/* && rm /sources.list
 
 RUN apt update && apt upgrade -y \
     && apt --fix-broken install \
-    && apt install alsa-oss alsa-utils ca-certificates bluetooth bluez pulseaudio libpulse0 pulseaudio-utils sayonara -y \
+    && apt install alsa-oss alsa-utils ca-certificates bluetooth bluez libpulse0 pulseaudio-utils sayonara -y \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -22,7 +22,6 @@ RUN usermod -aG audio,bluetooth $USRNME
 COPY files/daemon.conf /etc/pulse/daemon.conf
 COPY files/pulse-client.conf /etc/pulse/client.conf
 RUN mkdir -p /run/user/${USER_ID}/ && chown -R ${USER_ID}:${USER_ID} /run/user/${USER_ID}/ && chmod 700 /run/user/${USER_ID}
+RUN echo "default-server = unix:/run/user/${USER_ID}/pulse/native" >> /etc/pulse/client.conf
 USER $USRNME
-RUN echo $(pulseaudio -k ) && echo $(pulseaudio --start | true)
-
-#CMD "sayonara"
+#RUN echo $(pulseaudio -k ) && echo $(pulseaudio --start | true)

@@ -1,12 +1,15 @@
 FROM docker.io/library/debian:bookworm-slim 
 
-RUN apt update && apt upgrade -y \
+COPY ../sources.list /sources.list
+RUN cat /sources.list > /etc/apt/sources.list 
+RUN rm /etc/apt/sources.list.d/* && rm /sources.list
+
+RUN apt update && apt upgrade -y && apt --fix-broken install -y \
     && apt install keepass2 -y \
     && rm -rf /var/lib/apt/lists/*
 
 ARG GROUP_ID=9898
 ARG USER_ID=9898
-ARG USRNME=testpilot
 
 RUN groupadd -g $GROUP_ID --system $USRNME && \
     useradd -m --gid $GROUP_ID --system -u $USER_ID $USRNME \

@@ -48,7 +48,6 @@ run-wayland:
 	@ x11docker \
 		--backend=${DOCKER} \
 		--clipboard=yes \
-		--verbose \
 		-- \
 		--cap-add=sys_chroot \
 		--cpus 3.5 \

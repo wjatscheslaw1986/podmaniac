@@ -27,8 +27,8 @@ COPY files/pulse-client.conf /etc/pulse/client.conf
 
 RUN mkdir -p /run/user/${USER_ID}/ && chown -R ${USER_ID}:${USER_ID} /run/user/${USER_ID}/ && chmod 700 /run/user/${USER_ID}
 
-#RUN echo "default-server = unix:/run/user/$USER_ID/pulse/native" >> /etc/pulse/client.conf
+RUN echo "default-server = unix:/run/user/$USER_ID/pulse/native" >> /etc/pulse/client.conf
 
 USER $USRNME
-RUN echo $(pulseaudio -k ) && echo $(pulseaudio --start | true)
+#RUN echo $(pulseaudio -k ) && echo $(pulseaudio --start | true)
 

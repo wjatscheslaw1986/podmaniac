@@ -1,0 +1,52 @@
+FROM docker.io/library/debian:latest
+
+COPY sources.list /sources.list
+RUN cat /sources.list > /etc/apt/sources.list 
+RUN rm /etc/apt/sources.list.d/* && rm /sources.list
+
+RUN apt update && apt upgrade -y && apt --fix-broken install && \
+    apt install -y \
+    # Build tools
+    build-essential \
+    cmake \
+    ninja-build \
+    git \
+    pkg-config \
+    # Qt6 development
+    qt6-base-dev \
+    qt6-declarative-dev \
+    qt6-tools-dev \
+    # KDE Frameworks 6 development
+    libkf5coreaddons5 \
+    libkf5config-dev \
+    libkf5i18n-dev \
+    libkf5kio-dev \
+    libkf5notifications-dev \
+    libkf5dbusaddons-dev \
+    extra-cmake-modules \
+    # GUI dependencies
+    libx11-dev \
+    libwayland-dev \
+    libegl1-mesa-dev \
+    libgl1-mesa-dev \
+    # Runtime libraries (for completeness)
+    libqt5core5a \
+    libqt5gui5 \
+    libqt5widgets5 \
+    libqt5qml5 \
+    libqt5quick5 \
+    # Finally Okular
+    okular && \
+    rm -rf /var/lib/apt/lists/*
+
+ARG GROUP_ID=9898
+ARG USER_ID=9898
+ARG USRNME
+
+RUN groupadd -g $GROUP_ID --system $USRNME && \
+    useradd -m --gid $GROUP_ID --system -u $USER_ID $USRNME \
+    && mkdir -p /home/$USRNME/.config \
+    && mkdir -p /home/$USRNME/.cache \
+    && chown --recursive $USER_ID:$GROUP_ID /home/$USRNME
+
+USER $USRNME

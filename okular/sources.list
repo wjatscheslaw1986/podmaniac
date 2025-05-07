@@ -1,0 +1,15 @@
+#Security
+deb http://security.debian.org/debian-security bookworm-security main non-free-firmware
+# deb-src http://security.debian.org/debian-security bookworm-security main non-free-firmware
+# bookworm-updates, to get updates before a point release is made;
+# see https://www.debian.org/doc/manuals/debian-reference/ch02.en.html#_updates_and_backports
+
+#Japan
+deb http://debian-mirror.sakura.ne.jp/debian/ bookworm main non-free-firmware
+deb http://debian-mirror.sakura.ne.jp/debian/ bookworm-updates main non-free-firmware
+# deb-src http://debian-mirror.sakura.ne.jp/debian/ bookworm main non-free-firmware
+# deb-src http://debian-mirror.sakura.ne.jp/debian/ bookworm-updates main non-free-firmware
+
+#Netherlands
+#deb http://ftp.nl.debian.org/debian bookworm main non-free-firmware
+#deb http://ftp.nl.debian.org/debian bookworm-updates main non-free-firmware

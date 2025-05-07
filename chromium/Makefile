@@ -10,11 +10,15 @@ IMG_NAME=chromium
 
 build:
 	@ echo "Собираем образ Chromium для запуска в ином пространстве имён" && \
-        ${DOCKER} build -t ${IMG_NAME} .
+        ${DOCKER} build -t ${IMG_NAME} \
+        --build-arg=USR_NAME=${USRNME} \
+        .
 
 build-wayland:
 	@ echo "Собираем образ Chromium для запуска в ином пространстве имён" && \
-        ${DOCKER} build -f Dockerfile_Wayland -t ${IMG_NAME} .
+        ${DOCKER} build -f Dockerfile_Wayland -t ${IMG_NAME} \
+        --build-arg=USR_NAME=${USRNME} \
+        .
 
 build-keep-uid:
 	@ echo "Собираем образ Chromium для запуска от имени пользователя ${ME}" && \
@@ -78,7 +82,7 @@ run-keep-uid:
         -v /run/dbus:/run/dbus:rw \
         ${IMG_NAME}${MY_UID}
 
-# Запустить анонимный агностический браузер в ином пространстве имён
+# Запустить анонимный агностический браузер в ином пространстве имён (X11)
 run-anon:
 	@ ${DOCKER} run \
     	--log-level info \
@@ -97,3 +101,27 @@ run-anon:
         -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
 	-e DISPLAY=${DISPLAY} \
 	${IMG_NAME}
+
+# Запустить анонимный агностический браузер в ином пространстве имён (Wayland)
+run-anon-wayland:
+	@ x11docker \
+        --clipboard=yes \
+        -I \
+        --user=RETAIN \
+	--verbose \
+        --backend=podman \
+        -- \
+        --uidmap=0:7:1 \
+        --uidmap=9898:8:1 \
+        --gidmap=0:7:1 \
+        --gidmap=9898:8:1 \
+        --gidmap=29:6:1 \
+        --gidmap=44:5:1 \
+        --gidmap=108:4:1 \
+	--cpus 3.5 \
+        --memory 4096m \
+        -v /home/${ME}/Downloads:/home/${USRNME}/Downloads:rw \
+        -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
+	-e DISPLAY=${DISPLAY} \
+        -- \
+        ${IMG_NAME} chromium

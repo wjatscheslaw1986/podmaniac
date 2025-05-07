@@ -2,7 +2,7 @@ SHELL=/bin/bash
 
 DOCKER=podman
 
-IMG_NAME=keepass
+IMG_NAME=keepass2
 UUID=$(shell id -u)
 ME=$(shell whoami)
 USRNME=passwordmanager
@@ -18,13 +18,13 @@ list:
 build:
 	@ ${DOCKER} build \
         -f Dockerfile_X11 \
-        --build-arg=USRNME=${USRNME} \
+        --build-arg=USRNAME=${USRNME} \
         -t ${IMG_NAME} .
 
 build-wayland:
 	@ ${DOCKER} build \
         -f Dockerfile_Wayland \
-        --build-arg=USRNME=${USRNME} \
+        --build-arg=USRNAME=${USRNME} \
         -t ${IMG_NAME} .
 
 run:
@@ -48,13 +48,14 @@ run-wayland:
 	@ x11docker \
         --clipboard=yes \
         --network=none \
-        --user=RETAIN \
+	--home \
+	--user=RETAIN \
         --backend=podman \
         -- \
         --uidmap=0:119:1 \
         --uidmap=9898:120:1 \
         --gidmap=0:119:1 \
         --gidmap=9898:120:1  \
-        -v /opt/keepass:/home/${USRNME}/:rw \
+	-v /opt/keepass:/home/${USRNME}/:rw \
         -- \
         ${IMG_NAME} keepass2

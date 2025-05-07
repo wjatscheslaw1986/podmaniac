@@ -1,18 +1,18 @@
 FROM --platform=linux/amd64 docker.io/library/debian:latest 
 
-COPY files/sources.list /sources.list
+COPY sources.list /sources.list
 RUN cat /sources.list > /etc/apt/sources.list 
 RUN rm /etc/apt/sources.list.d/* && rm /sources.list
 
 RUN apt update && apt upgrade -y && apt --fix-broken install -y && apt install apt-transport-https -y
 
 RUN apt install -y xfce4 xdg-utils
-RUN apt install alsa-oss alsa-utils pulseaudio ca-certificates ffmpeg bluetooth bluez chromium -y 
+RUN apt install alsa-oss alsa-utils pulseaudio-utils ca-certificates ffmpeg bluetooth bluez chromium -y 
 RUN apt clean && rm -rf /var/lib/apt/lists/*
 
 ARG GROUP_ID=9898
 ARG USER_ID=9898
-ARG USR_NAME=chromeuser
+ARG USR_NAME
 
 RUN echo "default-sample-format = s32le # Варианты s16le, s32le, float32le" > /etc/pulse/daemon.conf
 RUN echo "default-sample-rate = 192000 # как вариант 48000, 96000, 192000, 320000" >> /etc/pulse/daemon.conf

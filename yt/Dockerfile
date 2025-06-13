@@ -2,7 +2,7 @@ FROM docker.io/library/debian:bookworm-slim
 
 RUN apt update && apt upgrade -y && apt install -y bash ffmpeg vim mc curl \
     python3 python3-dev python3-venv python3-pip pylint pipx python3-virtualenv \
-    build-essential libssl-dev libffi-dev libpq-dev \
+    build-essential libssl-dev libffi-dev libpq-dev locales fonts-noto unicode \
     && apt clean && rm -rf /var/lib/apt/lists/*
 
 ARG GROUP_ID=9898
@@ -16,19 +16,19 @@ RUN groupadd --gid $GROUP_ID --system $USRNME && \
     && mkdir --parents /home/$USRNME/.local/share \
     && chown --recursive $USRNME:$USRNME /home/$USRNME
 
-COPY dwn_mus_playlist.sh /dwn_mus_playlist.sh
-COPY dwn_mus_track.sh /dwn_mus_track.sh
-COPY dwn_vid_bq_engsub.sh /dwn_vid_bq_engsub.sh
-COPY dwn_vid_bq.sh /dwn_vid_bq.sh
-COPY dwn_vid_custom1.sh /dwn_vid_custom1.sh
-COPY dwn_vid_playlist_engsub_custom1.sh /dwn_vid_playlist_engsub_custom1.sh
-COPY dwn_vid_playlist_engsub.sh /dwn_vid_playlist_engsub.sh
-COPY dwn_vid_playlist.sh /dwn_vid_playlist.sh
-COPY dwn_vid_pq.sh /dwn_vid_pq.sh
+COPY dwn_*.sh /home/$USRNME/
 
 RUN chown -R 9898:9898 /home/$USRNME
-RUN chmod +x /*.sh
+RUN chmod +x /home/$USRNME/*.sh
 WORKDIR /home/$USRNME
+
+RUN locale-gen en_US.UTF-8
+ENV DEBIAN_FRONTEND=noninteractive
+ENV LANG=en_US.UTF-8 \
+    LC_ALL=en_US.UTF-8
+
+RUN dpkg-reconfigure locales
+
 USER $USRNME
 
 RUN python3 -m venv .venv

@@ -5,4 +5,4 @@ if [[ $# -ne 1 ]]; then
     exit 1
 fi
 
-./.venv/bin/yt-dlp --abort-on-unavailable-fragments --audio-quality=0 -x --audio-format=mp3 -o "./%(channel)s/%(title)s.%(ext)s" "$1"
+./.venv/bin/yt-dlp --abort-on-unavailable-fragments --audio-quality=0 -x --audio-format=mp3 --cookies-from-browser firefox:o7m672el.default-release --cookies ./c.txt -o "./%(channel)s/%(title)s.%(ext)s" "$1"

@@ -7,7 +7,7 @@ cat > "$path" << EOF
 Description=Podman vsftp container service
 
 [Service]
-ExecStart=$HOME/Code/vsftpd/run.sh ftps
+ExecStart=$HOME/Code/podmaniac/vsftpd/run.sh ftps
 ExecStop=/usr/bin/podman stop ftps
 ExecStopPost=/usr/bin/podman rm ftps
 Restart=always

@@ -1,15 +1,15 @@
 #!/bin/bash
 
-path=$HOME/.config/systemd/user/podman-vsftp.service
+path=$HOME/.config/systemd/user/podman-unbound.service
 
 cat > "$path" << EOF
 [Unit]
-Description=Podman vsftp container service
+Description=Podman unbound container service
 
 [Service]
-ExecStart=$HOME/Code/vsftpd/run.sh ftps
-ExecStop=/usr/bin/podman stop ftps
-ExecStopPost=/usr/bin/podman rm ftps
+ExecStart=$HOME/Code/podmaniac/unbound/run.sh unbound
+ExecStop=/usr/bin/podman stop unbound
+ExecStopPost=/usr/bin/podman rm unbound
 Restart=always
 
 [Install]

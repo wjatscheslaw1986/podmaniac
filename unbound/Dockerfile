@@ -3,7 +3,7 @@ FROM docker.io/library/debian:latest
 ARG OPENSSL_VERSION=openssl-3.5.0
 ARG OPENSSL_SHA256=344d0a79f1a9b08029b0744e2cc401a43f9c90acd1044d09a530b4885a8e9fc0
 ARG OPENSSL_DOWNLOAD_URL=https://github.com/openssl/openssl/releases/download/${OPENSSL_VERSION}/${OPENSSL_VERSION}.tar.gz
-ARG OPENSSL_PGP_SIG=https://github.com/openssl/openssl/releases/download/openssl-3.5.0/openssl-3.5.0.tar.gz.asc
+ARG OPENSSL_PGP_SIG=https://github.com/openssl/openssl/releases/download/${OPENSSL_VERSION}/${OPENSSL_VERSION}.tar.gz.asc
 ARG NAME=unbound
 ARG UNBOUND_VERSION=1.23.0
 ARG UNBOUND_SHA256=959bd5f3875316d7b3f67ee237a56de5565f5b35fc9b5fc3cea6cfe735a03bb8
@@ -43,13 +43,12 @@ RUN set -e -x && apt update && apt upgrade -y && apt install -y \
     libprotobuf-c1
 
 RUN set -e -x && \
-    curl -L ${OPENSSL_DOWNLOAD_URL} -o openssl.tar.gz && \
+    curl -L $OPENSSL_DOWNLOAD_URL -o openssl.tar.gz && \
     echo "${OPENSSL_SHA256} ./openssl.tar.gz" | sha256sum -c - && \
-    curl -L ${OPENSSL_PGP_SIG} -o openssl.tar.gz.asc && \
-    GNUPGHOME="$(mktemp -d)" && \
-    export GNUPGHOME && \
+    curl -L $OPENSSL_PGP_SIG -o openssl.tar.gz.asc && \
+    export GNUPGHOME="$(mktemp -d)" && \
     gpg --verify openssl.tar.gz.asc openssl.tar.gz && \
-    tar xzf openssl.tar.gz && \
+    tar xf openssl.tar.gz && \
     cd $OPENSSL_VERSION && \
     ./config \
       --prefix=/opt/openssl \
@@ -62,11 +61,9 @@ RUN set -e -x && \
       -fstack-protector-strong && \
     make depend && \
     nproc | xargs -I % make -j% && \
-    make install_sw && \
-    rm -rf \
-        /tmp/* \
-        /var/tmp/* \
-        /var/lib/apt/lists/*
+    make install_sw
+
+RUN rm -rf /tmp/* /var/tmp/* /var/lib/apt/lists/*
 
 RUN groupadd -g $GROUP_ID --system $NAME && \
     useradd -m --gid $GROUP_ID --system -u $USER_ID $NAME \

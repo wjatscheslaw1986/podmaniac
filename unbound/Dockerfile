@@ -1,33 +1,26 @@
 FROM docker.io/library/debian:latest
 
-ENV VERSION_OPENSSL=openssl-3.3.2 \
-    SHA256_OPENSSL=2e8a40b01979afe8be0bbfb3de5dc1c6709fedb46d6c89c10da114ab5fc3d281 \
-    SOURCE_OPENSSL=https://www.openssl.org/source/ \
-    # OpenSSL OMC
-    OPGP_OPENSSL_1=EFC0A467D613CB83C7ED6D30D894E2CE8B3D79F5 \
-    # Richard Levitte
-    OPGP_OPENSSL_2=7953AC1FBC3DC8B3B292393ED5E9E43F7DF9EE8C \
-    # Matt Caswell
-    OPGP_OPENSSL_3=8657ABB260F056B1E5190839D9C4D26D0E604491 \
-    # Paul Dale
-    OPGP_OPENSSL_4=B7C1C14360F353A36862E4D5231C84CDDCC69C45 \
-    # Tomas Mraz
-    OPGP_OPENSSL_5=A21FAB74B0088AA361152586B8EF1A6BA9DA2D5C \
-    NAME=unbound \
-    UNBOUND_VERSION=1.20.0 \
-    UNBOUND_SHA256=56b4ceed33639522000fd96775576ddf8782bb3617610715d7f1e777c5ec1dbf \
-    UNBOUND_DOWNLOAD_URL=https://www.nlnetlabs.nl/downloads/unbound/unbound-1.20.0.tar.gz \
-    SUMMARY="${NAME} is a validating, recursive, and caching DNS resolver." \
-    DESCRIPTION="${NAME} is a validating, recursive, and caching DNS resolver." \
-    GROUP_ID=9898 \
-    USER_ID=9898 \
-    DEBIAN_FRONTEND=noninteractive \
-    BUILD_DEPS="build-essential curl"
+ARG OPENSSL_VERSION=openssl-3.5.0
+ARG OPENSSL_SHA256=344d0a79f1a9b08029b0744e2cc401a43f9c90acd1044d09a530b4885a8e9fc0
+ARG OPENSSL_DOWNLOAD_URL=https://github.com/openssl/openssl/releases/download/${OPENSSL_VERSION}/${OPENSSL_VERSION}.tar.gz
+ARG OPENSSL_PGP_SIG=https://github.com/openssl/openssl/releases/download/openssl-3.5.0/openssl-3.5.0.tar.gz.asc
+ARG NAME=unbound
+ARG UNBOUND_VERSION=1.23.0
+ARG UNBOUND_SHA256=959bd5f3875316d7b3f67ee237a56de5565f5b35fc9b5fc3cea6cfe735a03bb8
+ARG UNBOUND_DOWNLOAD_URL=https://www.nlnetlabs.nl/downloads/unbound/unbound-${UNBOUND_VERSION}.tar.gz
+ARG UNBOUND_PGP_SIG=https://www.nlnetlabs.nl/downloads/unbound/unbound-${UNBOUND_VERSION}.tar.gz.asc
+ARG SUMMARY="${NAME} is a validating, recursive, and caching DNS resolver."
+ARG DESCRIPTION="${NAME} is a validating, recursive, and caching DNS resolver."
+ARG GROUP_ID=9898
+ARG USER_ID=9898
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /tmp/src
 
 RUN set -e -x && apt update && apt upgrade -y && apt install -y \
-    $BUILD_DEPS \
+    build-essential \
+    curl \
     ca-certificates \
     gpg \
     dirmngr \
@@ -50,15 +43,14 @@ RUN set -e -x && apt update && apt upgrade -y && apt install -y \
     libprotobuf-c1
 
 RUN set -e -x && \
-    curl -L ${SOURCE_OPENSSL}${VERSION_OPENSSL}.tar.gz -o openssl.tar.gz && \
-    echo "${SHA256_OPENSSL} ./openssl.tar.gz" | sha256sum -c - && \
-    curl -L ${SOURCE_OPENSSL}${VERSION_OPENSSL}.tar.gz.asc -o openssl.tar.gz.asc && \
+    curl -L ${OPENSSL_DOWNLOAD_URL} -o openssl.tar.gz && \
+    echo "${OPENSSL_SHA256} ./openssl.tar.gz" | sha256sum -c - && \
+    curl -L ${OPENSSL_PGP_SIG} -o openssl.tar.gz.asc && \
     GNUPGHOME="$(mktemp -d)" && \
     export GNUPGHOME && \
-    gpg --no-tty --keyserver keyserver.ubuntu.com --recv-keys "$OPGP_OPENSSL_1" "$OPGP_OPENSSL_2" "$OPGP_OPENSSL_3" "$OPGP_OPENSSL_4" "$OPGP_OPENSSL_5" && \
-    gpg --batch --verify openssl.tar.gz.asc openssl.tar.gz && \
+    gpg --verify openssl.tar.gz.asc openssl.tar.gz && \
     tar xzf openssl.tar.gz && \
-    cd $VERSION_OPENSSL && \
+    cd $OPENSSL_VERSION && \
     ./config \
       --prefix=/opt/openssl \
       --openssldir=/opt/openssl \
@@ -76,18 +68,26 @@ RUN set -e -x && \
         /var/tmp/* \
         /var/lib/apt/lists/*
 
+RUN groupadd -g $GROUP_ID --system $NAME && \
+    useradd -m --gid $GROUP_ID --system -u $USER_ID $NAME \
+    && mkdir -p /home/$NAME/.config \
+    && mkdir -p /home/$NAME/.cache \
+    && chown --recursive $USER_ID:$GROUP_ID /home/$NAME
+
 RUN set -e -x && \
     curl -sSL $UNBOUND_DOWNLOAD_URL -o unbound.tar.gz && \
     echo "${UNBOUND_SHA256} *unbound.tar.gz" | sha256sum -c - && \
+    curl -L ${UNBOUND_PGP_SIG} -o openssl.tar.gz.asc && \
+    gpg --verify openssl.tar.gz.asc unbound.tar.gz && \
     tar xzf unbound.tar.gz && \
     rm -f unbound.tar.gz && \
-    cd unbound-1.20.0 && \
-    groupadd -g $GROUP_ID --system ${NAME} && \
-    useradd -u $USER_ID --gid $GROUP_ID -g ${NAME} --system -d /etc/unbound ${NAME} && \
+    cd unbound-${UNBOUND_VERSION} && \
+    groupadd -g $GROUP_ID --system $NAME && \
+    useradd -u $USER_ID --gid $GROUP_ID -g $NAME --system -d /etc/unbound $NAME && \
     ./configure \
         --disable-dependency-tracking \
         --with-pthreads \
-        --with-username=${NAME} \
+        --with-username=$NAME \
         --with-ssl=/opt/openssl \
         --with-libevent \
         --with-libnghttp2 \
@@ -108,15 +108,19 @@ WORKDIR /etc/unbound
 RUN set -x && apt purge -y --auto-remove $BUILD_DEPS
 RUN mv /etc/unbound/unbound.conf /etc/unbound/unbound.conf.bak
 COPY docker_files/unbound.conf /etc/unbound/unbound.conf
-RUN chown -R ${NAME}:${NAME} /etc/unbound
+COPY docker_files/a-records.conf /etc/unbound/a-records.conf
+COPY docker_files/srv-records.conf /etc/unbound/srv-records.conf
+COPY docker_files/forward-records.conf /etc/unbound/forward-records.conf
+RUN rm -rf /etc/unbound/unbound.conf.d/*
+RUN chown -R $NAME:$NAME /etc/unbound
 
-LABEL org.opencontainers.image.version=${UNBOUND_VERSION} \
-      org.opencontainers.image.title="vmikhailov/unbound" \
-      org.opencontainers.image.description="a validating, recursive, and caching DNS resolver" \
-      org.opencontainers.image.url="https://github.com/wjatscheslaw1986/unbound-podman-rootless" \
-      org.opencontainers.image.vendor="Viacheslav Mikhailov" \
-      org.opencontainers.image.licenses="MIT" \
-      org.opencontainers.image.source="https://github.com/wjatscheslaw1986/unbound-podman-rootless"
+#LABEL org.opencontainers.image.version=${UNBOUND_VERSION} \
+#      org.opencontainers.image.title="vmikhailov/unbound" \
+#      org.opencontainers.image.description="a validating, recursive, and caching DNS resolver" \
+#      org.opencontainers.image.url="https://github.com/wjatscheslaw1986/unbound-podman-rootless" \
+#      org.opencontainers.image.vendor="Viacheslav Mikhailov" \
+#      org.opencontainers.image.licenses="MIT" \
+#      org.opencontainers.image.source="https://github.com/wjatscheslaw1986/unbound-podman-rootless"
 
 EXPOSE 53/tcp
 EXPOSE 53/udp

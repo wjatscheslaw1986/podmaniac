@@ -104,9 +104,9 @@ RUN cd unbound-${UNBOUND_VERSION} && \
         make install
 
 RUN mkdir -p /usr/share/dns
+RUN mkdir -p /opt/unbound/{log,etc} && chmod 777 /opt/unbound/{log,etc} && chown -R $NAME:$NAME /opt/unbound
 COPY root/root.* /usr/share/dns/
 RUN chmod 777 /usr/share/dns && chmod 666 /usr/share/dns/*
-RUN mkdir -p /opt/unbound/log && chmod 777 /opt/unbound/log
 
 RUN rm -rf \
         /opt/unbound/share/man \
@@ -117,12 +117,13 @@ RUN rm -rf \
 RUN set -x && apt purge -y --auto-remove build-essential curl
 RUN mv /usr/local/etc/unbound/unbound.conf /usr/local/etc/unbound/unbound.conf.bak
 COPY docker_files/unbound.conf /usr/local/etc/unbound/unbound.conf
+#COPY docker_files/unbound.conf /opt/unbound/etc/unbound.conf
 COPY docker_files/a-records.conf /usr/local/etc/unbound/a-records.conf
 COPY docker_files/srv-records.conf /usr/local/etc/unbound/srv-records.conf
 COPY docker_files/forward-records.conf /usr/local/etc/unbound/forward-records.conf
 RUN rm -rf /usr/local/etc/unbound/unbound.conf.d/*
 
-WORKDIR /var/log/unbound/
+WORKDIR /opt/unbound/log/
 
 #LABEL org.opencontainers.image.version=${UNBOUND_VERSION} \
 #      org.opencontainers.image.title="vmikhailov/unbound" \

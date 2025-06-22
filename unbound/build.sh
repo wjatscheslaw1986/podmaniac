@@ -1,2 +1,2 @@
 #!/bin/bash
-podman build -t unbound .
+podman build -t $1 .

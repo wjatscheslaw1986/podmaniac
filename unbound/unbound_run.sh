@@ -2,10 +2,6 @@
 
 SERVICE_NAME=${1:-unbound}
 
-mkdir -p $HOME/$SERVICE_NAME/root
-cp /usr/share/dns/* $HOME/$SERVICE_NAME/root
-curl -o $HOME/$SERVICE_NAME/root/root.hints https://www.internic.net/domain/named.cache
-
 podman run \
     --rm -it \
     --uidmap=0:124:1 \
@@ -17,6 +13,7 @@ podman run \
     -p 53:53/udp \
     -p 853:853/udp \
     --name=$SERVICE_NAME \
+    -v $HOME/$SERVICE_NAME/etc:/usr/local/etc/unbound \
     -v $HOME/$SERVICE_NAME/log:/opt/unbound/log:rw \
     -v $HOME/$SERVICE_NAME/root:/opt/unbound/root:rw \
     $1

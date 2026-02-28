@@ -12,7 +12,7 @@ fi
 counter=1
 
 # Get list of video URLs from the playlist
-video_urls=$(./.venv/bin/yt-dlp --get-id "$1" | sed 's/^/https:\/\/www.youtube.com\/watch?v=/')
+video_urls=$(./.venv/bin/yt-dlp --remote-components ejs:github --js-runtimes deno:./deno --get-id "$1" | sed 's/^/https:\/\/www.youtube.com\/watch?v=/')
 
 # Loop through each video URL
 while IFS= read -r url; do
@@ -23,10 +23,9 @@ while IFS= read -r url; do
     ./.venv/bin/yt-dlp --abort-on-unavailable-fragments \
         -f "bv*+ba/b" \
 	--restrict-filenames \
-        --write-auto-sub \
-        --sub-lang=en \
-	--cookies-from-browser firefox:o7m672el.default-release \
-	--cookies ./c.txt \
+	--cookies ./cookies.txt \
+	--remote-components ejs:github \
+	--js-runtimes deno:./deno \
         -o "./%(creator)s/%(playlist)s/${formatted_counter}_%(title)s.%(ext)s" \
         "$url"
     

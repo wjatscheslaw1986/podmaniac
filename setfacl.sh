@@ -13,3 +13,6 @@ setfacl -R -m u:100021:rwx /opt/tg
 setfacl -R -m u:100027:rwx /opt/yt
 setfacl -R -m u:100119:rwx /opt/keepass
 setfacl -R -m u:1000:rwx /opt/
+#setfacl -R -m u:100200:rwx /home/$1/mysql
+chown -R 100200:100200 /home/$1/mysql
+

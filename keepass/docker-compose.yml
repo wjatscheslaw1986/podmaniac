@@ -4,7 +4,7 @@ services:
   keepass2:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile_X11
       args:
         - CONTAINER=mykeepass
     environment:

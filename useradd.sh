@@ -10,3 +10,4 @@ groupadd -g 100025 -r -o pod_vlc && useradd -g pod_vlc -r -o -M -e 1970-01-01 -u
 groupadd -g 100027 -r -o pod_yt && useradd -g pod_yt -r -o -M -e 1970-01-01 -u 100027 -s /sbin/nologin pod_yt
 groupadd -g 100119 -r -o pod_kee && useradd -g pod_kee -r -o -M -e 1970-01-01 -u 100119 -s /sbin/nologin pod_kee
 groupadd -g 100124 -r -o pod_unbound && useradd -g pod_unbound -r -o -M -e 1970-01-01 -u 100124 -s /sbin/nologin pod_unbound
+groupadd -g 100201 -r -o pod_mysql && useradd -g pod_mysql -r -o -M -e 1970-01-01 -u 100201 -s /sbin/nologin pod_mysql

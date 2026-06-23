@@ -1,65 +1,75 @@
 #!/usr/bin/env python3
 
-import os
-import http.server
-import socketserver
-import requests
+from flask import Flask, Response, request
+import requests_unixsocket
+import urllib.parse
 
-MODEL_URL = os.environ["MODEL_URL"].rstrip("/")
-API_KEY = os.environ["MODEL_API_KEY"]
+app = Flask(__name__)
 
-class Handler(http.server.BaseHTTPRequestHandler):
+SOCKET = "/socket/model.sock"
 
-    def do_GET(self):
-        self.forward()
+session = requests_unixsocket.Session()
 
-    def do_POST(self):
-        self.forward()
+BASE_URL = (
+    "http+unix://"
+    + urllib.parse.quote(SOCKET, safe="")
+)
 
-    def do_PUT(self):
-        self.forward()
+HOP_HEADERS = {
+    "connection",
+    "keep-alive",
+    "proxy-authenticate",
+    "proxy-authorization",
+    "te",
+    "trailers",
+    "transfer-encoding",
+    "upgrade",
+    "host",
+}
 
-    def do_DELETE(self):
-        self.forward()
 
-    def forward(self):
-        if not self.path.startswith("/v1/"):
-            self.send_error(403)
-            return
+@app.route("/", defaults={"path": ""}, methods=[
+    "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
+])
+@app.route("/<path:path>", methods=[
+    "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
+])
+def proxy(path):
+    target = f"{BASE_URL}/{path}"
 
-        body = None
-        if "Content-Length" in self.headers:
-            body = self.rfile.read(int(self.headers["Content-Length"]))
+    headers = {
+        k: v
+        for k, v in request.headers.items()
+        if k.lower() not in HOP_HEADERS
+    }
 
-        headers = {
-            k: v
-            for k, v in self.headers.items()
-            if k.lower() != "host"
-        }
+    r = session.request(
+        method=request.method,
+        url=target,
+        headers=headers,
+        data=request.get_data(),
+        params=request.args,
+        stream=True,
+        timeout=600,
+    )
 
-        headers["Authorization"] = f"Bearer {API_KEY}"
+    response_headers = [
+        (k, v)
+        for k, v in r.headers.items()
+        if k.lower() not in HOP_HEADERS
+    ]
 
-        resp = requests.request(
-            self.command,
-            f"{MODEL_URL}{self.path}",
-            headers=headers,
-            data=body,
-            stream=True,
-        )
+    return Response(
+        r.raw,
+        status=r.status_code,
+        headers=response_headers,
+        direct_passthrough=True,
+    )
 
-        self.send_response(resp.status_code)
 
-        for k, v in resp.headers.items():
-            if k.lower() == "transfer-encoding":
-                continue
-            self.send_header(k, v)
-
-        self.end_headers()
-
-        for chunk in resp.iter_content(8192):
-            self.wfile.write(chunk)
-
-socketserver.UnixStreamServer(
-    "/socket/model.sock",
-    Handler,
-).serve_forever()
+if __name__ == "__main__":
+    app.run(
+        host="127.0.0.1",
+        port=8000,
+        threaded=True,
+    )

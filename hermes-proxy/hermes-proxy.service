@@ -1,0 +1,22 @@
+[Unit]
+Description=Hermes Model Proxy Container
+After=default.target
+
+[Service]
+EnvironmentFile=%h/.config/hermes-proxy.env
+
+ExecStart=/usr/bin/podman run \
+    --rm \
+    --name hermes-proxy \
+    -e MODEL_URL \
+    -e MODEL_API_KEY \
+    -v %h/.local/share/hermes-socket:/socket:Z \
+    localhost/hermes-proxy:latest
+
+ExecStop=/usr/bin/podman stop -t 10 hermes-proxy
+
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

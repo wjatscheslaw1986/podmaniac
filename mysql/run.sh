@@ -4,8 +4,8 @@ podman run  \
   --read-only \
   --name mysql \
   --uidmap=0:200:1 \
-  --uidmap=1000:202:198 \
   --uidmap=999:201:1 \
+  --uidmap=1000:202:198 \
   --gidmap=0:200:1 \
   --gidmap=999:201:1 \
   --gidmap=1000:202:198 \
@@ -17,5 +17,5 @@ podman run  \
   -v $HOME/mysql/data:/var/lib/mysql \
   --tmpfs /tmp:rw,noexec,nosuid,size=64m \
   --tmpfs /run:rw,noexec,nosuid,size=16m \
-  --tmpfs /var/run,rw,noexec,nosuid,size=16m \
+  --tmpfs /var/run:rw,noexec,nosuid,size=16m \
   mysql:8.0

@@ -18,4 +18,11 @@ export OPENAI_BASE_URL=http://127.0.0.1:8000/v1
 
 cd /workspace/Code
 
+hermes config set model.default Qwen3.6-27B
+hermes config set model.provider custom
+hermes config set model.context_length 26400
+#hermes config set model.base_url http://my.model.com:4000/v1
+#hermes config set model.api_key sk-xxxxxxxxxxxxxxxxx
+
+
 exec hermes "$@"
